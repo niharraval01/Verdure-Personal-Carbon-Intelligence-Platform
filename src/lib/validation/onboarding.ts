@@ -14,12 +14,12 @@ import { z } from "zod";
 
 export const vehicleTypeSchema = z.enum(
   ["car", "bike", "bus", "metro", "train", "none"],
-  { errorMap: () => ({ message: "Please select a vehicle type" }) }
+  { error: "Please select a vehicle type" }
 );
 
 export const fuelTypeSchema = z.enum(
   ["petrol", "diesel", "cng", "electric"],
-  { errorMap: () => ({ message: "Please select a fuel type" }) }
+  { error: "Please select a fuel type" }
 );
 
 export const transportInputSchema = z
@@ -27,11 +27,11 @@ export const transportInputSchema = z
     vehicleType: vehicleTypeSchema,
     fuelType: fuelTypeSchema.optional(),
     dailyDistanceKm: z
-      .number({ invalid_type_error: "Distance must be a number" })
+      .number({ error: "Distance must be a number" })
       .min(0, "Distance cannot be negative")
       .max(500, "Distance seems too high (max 500 km/day)"),
     publicTransportDaysPerWeek: z
-      .number({ invalid_type_error: "Days must be a number" })
+      .number({ error: "Days must be a number" })
       .int("Days must be a whole number")
       .min(0, "Cannot be negative")
       .max(7, "Maximum 7 days per week"),
@@ -48,22 +48,22 @@ export const transportInputSchema = z
 // ── Energy Schema ──────────────────────────────────────────
 
 export const homeTypeSchema = z.enum(["apartment", "independent"], {
-  errorMap: () => ({ message: "Please select a home type" }),
+  error: "Please select a home type",
 });
 
 export const energyInputSchema = z.object({
   homeType: homeTypeSchema,
   residents: z
-    .number({ invalid_type_error: "Residents must be a number" })
+    .number({ error: "Residents must be a number" })
     .int("Must be a whole number")
     .min(1, "At least 1 resident")
     .max(20, "Maximum 20 residents"),
   monthlyElectricityBill: z
-    .number({ invalid_type_error: "Bill must be a number" })
+    .number({ error: "Bill must be a number" })
     .min(0, "Bill cannot be negative")
     .max(100000, "Bill seems too high (max ₹1,00,000)"),
   acUsageHoursPerDay: z
-    .number({ invalid_type_error: "Hours must be a number" })
+    .number({ error: "Hours must be a number" })
     .min(0, "Cannot be negative")
     .max(24, "Maximum 24 hours per day"),
 });
@@ -72,22 +72,22 @@ export const energyInputSchema = z.object({
 
 export const dietTypeSchema = z.enum(
   ["vegetarian", "vegan", "eggetarian", "non-veg"],
-  { errorMap: () => ({ message: "Please select a diet type" }) }
+  { error: "Please select a diet type" }
 );
 
 export const shoppingFrequencySchema = z.enum(
   ["never", "monthly", "weekly"],
-  { errorMap: () => ({ message: "Please select a frequency" }) }
+  { error: "Please select a frequency" }
 );
 
 export const wasteLevelSchema = z.enum(["low", "medium", "high"], {
-  errorMap: () => ({ message: "Please select a waste level" }),
+  error: "Please select a waste level",
 });
 
 export const lifestyleInputSchema = z.object({
   dietType: dietTypeSchema,
   flightsPerYear: z
-    .number({ invalid_type_error: "Flights must be a number" })
+    .number({ error: "Flights must be a number" })
     .int("Must be a whole number")
     .min(0, "Cannot be negative")
     .max(100, "Maximum 100 flights per year"),

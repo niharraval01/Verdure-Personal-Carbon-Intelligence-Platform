@@ -57,9 +57,10 @@ export function ProgressChart({ data }: ProgressChartProps) {
               border: "1px solid var(--border)",
               borderRadius: "8px",
             }}
-            formatter={(value: number, name: string) => {
-              if (name === "score") return [`${value}/100`, "Score"];
-              return [`${value.toLocaleString()} kg`, "CO₂e/yr"];
+            formatter={(value, name) => {
+              const num = typeof value === "number" ? value : Number(value ?? 0);
+              if (name === "score") return [`${num}/100`, "Score"] as [string, string];
+              return [`${num.toLocaleString()} kg`, "CO₂e/yr"] as [string, string];
             }}
           />
           <Line

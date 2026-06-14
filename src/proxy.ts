@@ -1,5 +1,5 @@
 /**
- * Next.js Middleware — Route Protection + Rate Limiting
+ * Next.js Proxy — Route Protection + Rate Limiting
  *
  * Protects:
  * - /(dashboard)/* routes → redirect to /login if no session
@@ -23,7 +23,7 @@ import {
  */
 const SESSION_COOKIE = "verdure.session_token";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // ── Rate limiting for auth endpoints ──────────────────────
