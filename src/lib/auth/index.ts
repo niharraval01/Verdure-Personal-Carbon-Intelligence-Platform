@@ -10,6 +10,17 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "@/lib/db";
 
+// Ensure BETTER_AUTH_URL is set for deployments (Vercel automatically provides VERCEL_URL)
+if (!process.env.BETTER_AUTH_URL) {
+  if (process.env.VERCEL_URL) {
+    process.env.BETTER_AUTH_URL = `https://${process.env.VERCEL_URL}`;
+  } else if (process.env.NEXT_PUBLIC_APP_URL) {
+    process.env.BETTER_AUTH_URL = process.env.NEXT_PUBLIC_APP_URL;
+  } else {
+    process.env.BETTER_AUTH_URL = "http://localhost:3000";
+  }
+}
+
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",

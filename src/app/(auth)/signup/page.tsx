@@ -69,8 +69,9 @@ export default function SignupPage() {
         router.push("/onboarding");
         router.refresh();
       }
-    } catch {
-      setServerError("An unexpected error occurred. Please try again.");
+    } catch (e) {
+      console.error("Signup error:", e);
+      setServerError(`Error: ${e instanceof Error ? e.message : String(e)}`);
     } finally {
       setIsLoading(false);
     }
