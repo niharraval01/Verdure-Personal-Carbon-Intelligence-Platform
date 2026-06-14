@@ -1,0 +1,176 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Better Auth Tables
+// ═══════════════════════════════════════════════════════════════
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String
+  emailVerified Boolean   @default(false)
+  image         String?
+  role          String    @default("user") // "user" | "admin"
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Better Auth relations
+  accounts Account[]
+  sessions Session[]
+
+  // App-specific relations
+  footprints         CarbonFootprint[]
+  recommendations    UserRecommendation[]
+  coachMessages      CoachMessage[]
+  challengeEntries   ChallengeEntry[]
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                String    @id @default(cuid())
+  accountId         String
+  providerId        String
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken       String?
+  refreshToken      String?
+  idToken           String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope             String?
+  password          String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("verification")
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Application Tables
+// ═══════════════════════════════════════════════════════════════
+
+/// Stores each carbon footprint calculation snapshot.
+/// Users can have multiple footprints over time for progress tracking.
+model CarbonFootprint {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// Full CarbonInput JSON (transport + energy + lifestyle)
+  inputData Json
+
+  /// EmissionResult JSON (total + breakdown)
+  result    Json
+
+  /// Carbon score (0–100)
+  score     Int
+
+  /// Score label (excellent | good | average | needs-improvement)
+  scoreLabel String
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@map("carbon_footprint")
+}
+
+/// Tracks which recommendations a user has been given and completed.
+model UserRecommendation {
+  id               String    @id @default(cuid())
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// ID from the recommendation template (e.g., "transport-switch-ev")
+  recommendationId String
+
+  category         String    // "transport" | "energy" | "lifestyle"
+  title            String
+  impactKg         Float     // estimated reduction in kg CO₂e/year
+  isCompleted      Boolean   @default(false)
+  completedAt      DateTime?
+  createdAt        DateTime  @default(now())
+
+  @@index([userId, isCompleted])
+  @@map("user_recommendation")
+}
+
+/// Chat history with the AI Carbon Coach.
+model CoachMessage {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  role      String   // "user" | "assistant"
+  content   String
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@map("coach_message")
+}
+
+/// Predefined sustainability challenges.
+model Challenge {
+  id           String   @id @default(cuid())
+  title        String
+  description  String
+  category     String   // "transport" | "energy" | "lifestyle"
+  impactKg     Float    // estimated CO₂e reduction
+  durationDays Int
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  entries ChallengeEntry[]
+
+  @@map("challenge")
+}
+
+/// User participation in challenges.
+model ChallengeEntry {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challengeId String
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+  isCompleted Boolean   @default(false)
+
+  @@unique([userId, challengeId])
+  @@map("challenge_entry")
+}
