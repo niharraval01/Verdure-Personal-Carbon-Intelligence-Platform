@@ -36,7 +36,7 @@ export default async function DashboardPage() {
   }
 
   // Parse stored data
-  const result = latestFootprint.result as { kgCO2ePerYear: number; breakdown: EmissionBreakdown };
+  const result = latestFootprint.result as unknown as { kgCO2ePerYear: number; breakdown: EmissionBreakdown };
   const score: CarbonScore = {
     score: latestFootprint.score,
     label: latestFootprint.scoreLabel as CarbonScore["label"],

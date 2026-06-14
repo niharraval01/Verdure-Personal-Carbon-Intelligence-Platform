@@ -27,7 +27,7 @@ export default async function ProgressPage() {
   });
 
   const data = footprints.map((fp) => {
-    const result = fp.result as { kgCO2ePerYear: number };
+    const result = fp.result as unknown as { kgCO2ePerYear: number };
     return {
       date: fp.createdAt.toLocaleDateString("en-IN", {
         month: "short",

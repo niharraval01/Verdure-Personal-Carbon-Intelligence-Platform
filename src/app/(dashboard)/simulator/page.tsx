@@ -25,8 +25,8 @@ export default async function SimulatorPage() {
 
   if (!latestFootprint) redirect("/onboarding");
 
-  const inputData = latestFootprint.inputData as CarbonInput;
-  const resultData = latestFootprint.result as EmissionResult;
+  const inputData = latestFootprint.inputData as unknown as CarbonInput;
+  const resultData = latestFootprint.result as unknown as EmissionResult;
 
   return (
     <div className="page-container">

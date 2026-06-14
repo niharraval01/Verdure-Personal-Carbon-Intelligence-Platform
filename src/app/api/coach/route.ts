@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
     // Build context
     let userContext = "";
     if (latestFootprint) {
-      const result = latestFootprint.result as { kgCO2ePerYear: number; breakdown: Record<string, number> };
+      const result = latestFootprint.result as unknown as { kgCO2ePerYear: number; breakdown: Record<string, number> };
       userContext = `\n\nUSER'S CARBON DATA:
 - Total: ${(result.kgCO2ePerYear / 1000).toFixed(1)} tonnes CO₂e/year
 - Score: ${latestFootprint.score}/100 (${latestFootprint.scoreLabel})
