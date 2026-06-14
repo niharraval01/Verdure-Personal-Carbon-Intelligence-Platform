@@ -65,7 +65,7 @@ export function BreakdownChart({ breakdown, totalKg }: BreakdownChartProps) {
                 ))}
               </Pie>
               <Tooltip
-                formatter={(value: number) => [`${value.toLocaleString()} kg CO₂e`, ""]}
+                formatter={(value: any) => [`${Number(value).toLocaleString()} kg CO₂e`, ""]}
                 contentStyle={{
                   background: "var(--card-bg)",
                   border: "1px solid var(--border)",
