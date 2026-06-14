@@ -56,8 +56,8 @@ export async function POST(request: NextRequest) {
       await tx.carbonFootprint.create({
         data: {
           userId: session.user.id,
-          inputData: input,
-          result: result,
+          inputData: input as any,
+          result: result as any,
           score: score.score,
           scoreLabel: score.label,
         },
