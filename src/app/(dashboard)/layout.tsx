@@ -34,7 +34,7 @@ export default async function DashboardLayout({
       <DashboardSidebar
         userName={session.user.name}
         userEmail={session.user.email}
-        userRole={session.user.role ?? "user"}
+        userRole={(session.user as { role?: string }).role ?? "user"}
       />
       <main className="dashboard-layout__main" id="main-content">
         {children}
