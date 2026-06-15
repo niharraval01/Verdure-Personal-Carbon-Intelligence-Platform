@@ -19,11 +19,7 @@ const signupSchema = z.object({
   password: z
     .string()
     .min(8, "Password must be at least 8 characters")
-    .max(128, "Password too long")
-    .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      "Password must include uppercase, lowercase, and a number"
-    ),
+    .max(128, "Password too long"),
 });
 
 export default function SignupPage() {
@@ -150,7 +146,7 @@ export default function SignupPage() {
             className={`form-field__input ${errors.password ? "form-field__input--error" : ""}`}
             aria-invalid={!!errors.password}
             aria-describedby={errors.password ? "signup-password-error" : undefined}
-            placeholder="Min 8 characters, mixed case + number"
+            placeholder="At least 8 characters"
             disabled={isLoading}
           />
           {errors.password && (
