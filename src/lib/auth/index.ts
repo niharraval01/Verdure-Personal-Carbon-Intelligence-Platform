@@ -1,57 +1,39 @@
 /**
- * Better Auth — Server Configuration
- *
- * Server-side auth instance with Prisma adapter (Supabase PostgreSQL).
- * Email/password authentication enabled.
- * Cookies: httpOnly, secure, sameSite: lax.
+ * DEMO MODE: Mock auth & session
+ * Returns a fake session so all pages work without a real database.
  */
 
-import { betterAuth } from "better-auth";
-import { prismaAdapter } from "better-auth/adapters/prisma";
-import { prisma } from "@/lib/db";
+export const MOCK_USER = {
+  id: "demo-user-001",
+  name: "Nihar Raval",
+  email: "nihar@verdure.app",
+  role: "user",
+  emailVerified: true,
+  image: null,
+  createdAt: new Date("2024-01-01"),
+  updatedAt: new Date("2024-01-01"),
+};
 
-// Ensure BETTER_AUTH_URL is set for deployments (Vercel automatically provides VERCEL_URL)
-if (!process.env.BETTER_AUTH_URL) {
-  if (process.env.VERCEL_URL) {
-    process.env.BETTER_AUTH_URL = `https://${process.env.VERCEL_URL}`;
-  } else if (process.env.NEXT_PUBLIC_APP_URL) {
-    process.env.BETTER_AUTH_URL = process.env.NEXT_PUBLIC_APP_URL;
-  } else {
-    process.env.BETTER_AUTH_URL = "http://localhost:3000";
-  }
-}
-
-export const auth = betterAuth({
-  database: prismaAdapter(prisma, {
-    provider: "postgresql",
-  }),
-
-  emailAndPassword: {
-    enabled: true,
-    minPasswordLength: 8,
-    maxPasswordLength: 128,
-  },
-
+export const MOCK_SESSION = {
   session: {
-    cookieCache: {
-      enabled: true,
-      maxAge: 5 * 60, // 5 minutes cache
-    },
+    id: "demo-session-001",
+    userId: MOCK_USER.id,
+    token: "demo-token",
+    expiresAt: new Date("2099-01-01"),
+    createdAt: new Date("2024-01-01"),
+    updatedAt: new Date("2024-01-01"),
+    ipAddress: null,
+    userAgent: null,
   },
+  user: MOCK_USER,
+};
 
-  advanced: {
-    cookiePrefix: "verdure",
-    generateId: undefined, // use default cuid
+// Drop-in replacement for auth.api.getSession
+export const auth = {
+  api: {
+    getSession: async (_opts?: unknown) => MOCK_SESSION,
   },
+  handler: async (req: Request) => new Response("ok"),
+};
 
-  trustedOrigins: [
-    process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
-    process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
-    ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
-  ],
-});
-
-/**
- * Type helper for session data.
- */
-export type Session = typeof auth.$Infer.Session;
+export type Session = typeof MOCK_SESSION;

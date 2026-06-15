@@ -1,15 +1,9 @@
 /**
- * Dashboard Layout
- *
- * Main app shell with sidebar navigation and semantic landmarks.
- * Uses <nav>, <main>, and <aside> for accessibility.
+ * Dashboard Layout — DEMO MODE (auth bypassed)
  */
-
 import type { Metadata } from "next";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
 import { DashboardSidebar } from "@/features/dashboard/components/sidebar";
+import { MOCK_USER } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "Verdure — Dashboard",
@@ -21,20 +15,12 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session) {
-    redirect("/login");
-  }
-
   return (
     <div className="dashboard-layout">
       <DashboardSidebar
-        userName={session.user.name}
-        userEmail={session.user.email}
-        userRole={(session.user as { role?: string }).role ?? "user"}
+        userName={MOCK_USER.name}
+        userEmail={MOCK_USER.email}
+        userRole={MOCK_USER.role}
       />
       <main className="dashboard-layout__main" id="main-content">
         {children}

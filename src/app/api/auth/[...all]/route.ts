@@ -1,10 +1,9 @@
 /**
- * Better Auth — Catch-All API Route
- *
- * Handles all /api/auth/* requests (login, signup, session, etc.)
+ * DEMO MODE: Auth route stub — bypasses Better Auth entirely.
  */
-
-import { auth } from "@/lib/auth";
-import { toNextJsHandler } from "better-auth/next-js";
-
-export const { GET, POST } = toNextJsHandler(auth);
+export async function GET() {
+  return Response.json({ session: null });
+}
+export async function POST() {
+  return Response.json({ session: null });
+}

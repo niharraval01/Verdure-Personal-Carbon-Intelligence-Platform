@@ -1,76 +1,27 @@
 "use client";
 
 /**
- * Signup Page
- *
- * Email/password registration with Zod validation.
- * Uses Better Auth client for account creation.
+ * DEMO MODE: Signup bypassed — any input accepted, redirects straight to dashboard.
  */
 
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signUp } from "@/lib/auth/client";
-import { z } from "zod";
-
-const signupSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters").max(100),
-  email: z.string().email("Please enter a valid email address"),
-  password: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .max(128, "Password too long"),
-});
 
 export default function SignupPage() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
-  const [serverError, setServerError] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setErrors({});
-    setServerError("");
-
-    const result = signupSchema.safeParse({ name, email, password });
-    if (!result.success) {
-      const fieldErrors: Record<string, string> = {};
-      for (const issue of result.error.issues) {
-        const field = issue.path[0];
-        if (typeof field === "string") {
-          fieldErrors[field] = issue.message;
-        }
-      }
-      setErrors(fieldErrors);
-      return;
-    }
-
+    if (!name || !email || !password) return;
     setIsLoading(true);
-    try {
-      const response = await signUp.email({
-        name: result.data.name,
-        email: result.data.email,
-        password: result.data.password,
-      });
-
-      if (response.error) {
-        setServerError(
-          response.error.message ?? "Could not create account. Please try again."
-        );
-      } else {
-        router.push("/onboarding");
-        router.refresh();
-      }
-    } catch (e) {
-      console.error("Signup error:", e);
-      setServerError(`Error: ${e instanceof Error ? e.message : String(e)}`);
-    } finally {
-      setIsLoading(false);
-    }
+    // Small delay for UX feel, then redirect straight to dashboard
+    await new Promise((r) => setTimeout(r, 600));
+    router.push("/dashboard");
   }
 
   return (
@@ -79,12 +30,6 @@ export default function SignupPage() {
       <p className="auth-card__subtitle">
         Start understanding and reducing your carbon footprint
       </p>
-
-      {serverError && (
-        <div className="auth-card__error" role="alert">
-          {serverError}
-        </div>
-      )}
 
       <form onSubmit={handleSubmit} className="auth-form" noValidate>
         <div className="form-field">
@@ -97,17 +42,11 @@ export default function SignupPage() {
             autoComplete="name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className={`form-field__input ${errors.name ? "form-field__input--error" : ""}`}
-            aria-invalid={!!errors.name}
-            aria-describedby={errors.name ? "signup-name-error" : undefined}
+            className="form-field__input"
             placeholder="Your name"
             disabled={isLoading}
+            required
           />
-          {errors.name && (
-            <p id="signup-name-error" className="form-field__error" role="alert">
-              {errors.name}
-            </p>
-          )}
         </div>
 
         <div className="form-field">
@@ -120,17 +59,11 @@ export default function SignupPage() {
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className={`form-field__input ${errors.email ? "form-field__input--error" : ""}`}
-            aria-invalid={!!errors.email}
-            aria-describedby={errors.email ? "signup-email-error" : undefined}
+            className="form-field__input"
             placeholder="you@example.com"
             disabled={isLoading}
+            required
           />
-          {errors.email && (
-            <p id="signup-email-error" className="form-field__error" role="alert">
-              {errors.email}
-            </p>
-          )}
         </div>
 
         <div className="form-field">
@@ -143,23 +76,17 @@ export default function SignupPage() {
             autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className={`form-field__input ${errors.password ? "form-field__input--error" : ""}`}
-            aria-invalid={!!errors.password}
-            aria-describedby={errors.password ? "signup-password-error" : undefined}
-            placeholder="At least 8 characters"
+            className="form-field__input"
+            placeholder="Any password (demo mode)"
             disabled={isLoading}
+            required
           />
-          {errors.password && (
-            <p id="signup-password-error" className="form-field__error" role="alert">
-              {errors.password}
-            </p>
-          )}
         </div>
 
         <button
           type="submit"
           className="btn btn--primary btn--full"
-          disabled={isLoading}
+          disabled={isLoading || !name || !email || !password}
         >
           {isLoading ? (
             <span className="btn__loading">

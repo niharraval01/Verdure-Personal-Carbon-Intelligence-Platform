@@ -1,10 +1,6 @@
 /**
- * Simulator Page
+ * Simulator Page — DEMO MODE (mock input/result, no DB)
  */
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/db";
 import { SimulatorPanel } from "@/features/simulator/components/simulator-panel";
 import type { CarbonInput, EmissionResult } from "@/features/carbon-engine";
 import type { Metadata } from "next";
@@ -14,20 +10,37 @@ export const metadata: Metadata = {
   description: "Simulate how lifestyle changes affect your carbon footprint in real-time.",
 };
 
+const MOCK_INPUT: CarbonInput = {
+  transport: {
+    vehicleType: "car",
+    fuelType: "petrol",
+    dailyDistanceKm: 30,
+    publicTransportDaysPerWeek: 1,
+  },
+  energy: {
+    homeType: "apartment",
+    residents: 3,
+    monthlyElectricityBill: 2500,
+    acUsageHoursPerDay: 6,
+  },
+  lifestyle: {
+    dietType: "non-veg",
+    flightsPerYear: 2,
+    onlineShoppingFrequency: "monthly",
+    foodWasteLevel: "medium",
+  },
+};
+
+const MOCK_RESULT: EmissionResult = {
+  kgCO2ePerYear: 5840,
+  breakdown: {
+    transport: 2400,
+    energy: 1800,
+    lifestyle: 1640,
+  },
+};
+
 export default async function SimulatorPage() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) redirect("/login");
-
-  const latestFootprint = await prisma.carbonFootprint.findFirst({
-    where: { userId: session.user.id },
-    orderBy: { createdAt: "desc" },
-  });
-
-  if (!latestFootprint) redirect("/onboarding");
-
-  const inputData = latestFootprint.inputData as unknown as CarbonInput;
-  const resultData = latestFootprint.result as unknown as EmissionResult;
-
   return (
     <div className="page-container">
       <header className="page-header">
@@ -36,7 +49,7 @@ export default async function SimulatorPage() {
           Explore how changes to your habits could reduce your footprint
         </p>
       </header>
-      <SimulatorPanel initialInput={inputData} currentResult={resultData} />
+      <SimulatorPanel initialInput={MOCK_INPUT} currentResult={MOCK_RESULT} />
     </div>
   );
 }
