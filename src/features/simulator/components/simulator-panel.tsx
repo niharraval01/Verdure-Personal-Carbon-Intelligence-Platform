@@ -18,9 +18,10 @@ import { BreakdownChart } from "@/features/carbon-engine/components/breakdown-ch
 interface SimulatorProps {
   initialInput: CarbonInput;
   currentResult: EmissionResult;
+  onSave?: (input: CarbonInput) => void;
 }
 
-export function SimulatorPanel({ initialInput, currentResult }: SimulatorProps) {
+export function SimulatorPanel({ initialInput, currentResult, onSave }: SimulatorProps) {
   const shouldReduceMotion = useReducedMotion();
   const [input, setInput] = useState<CarbonInput>(initialInput);
 
@@ -270,6 +271,20 @@ export function SimulatorPanel({ initialInput, currentResult }: SimulatorProps) 
             breakdown={simulatedResult.breakdown}
             totalKg={simulatedResult.kgCO2ePerYear}
           />
+
+          {onSave && (
+            <div className="simulator__actions" style={{ marginTop: "2rem", textAlign: "center" }}>
+              <button 
+                className="btn btn--primary btn--lg"
+                onClick={() => onSave(input)}
+              >
+                Save to Profile
+              </button>
+              <p style={{ marginTop: "0.5rem", fontSize: "0.875rem", color: "var(--text-muted)" }}>
+                This will update your dashboard footprint.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </motion.div>

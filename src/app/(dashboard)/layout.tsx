@@ -4,6 +4,7 @@
 import type { Metadata } from "next";
 import { DashboardSidebar } from "@/features/dashboard/components/sidebar";
 import { MOCK_USER } from "@/lib/auth";
+import { CarbonProvider } from "@/contexts/CarbonContext";
 
 export const metadata: Metadata = {
   title: "Verdure — Dashboard",
@@ -23,7 +24,9 @@ export default async function DashboardLayout({
         userRole={MOCK_USER.role}
       />
       <main className="dashboard-layout__main" id="main-content">
-        {children}
+        <CarbonProvider>
+          {children}
+        </CarbonProvider>
       </main>
     </div>
   );

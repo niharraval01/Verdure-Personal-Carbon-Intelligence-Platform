@@ -21,36 +21,24 @@ const CATEGORY_ICONS: Record<string, string> = {
   lifestyle: "🍃",
 };
 
-export function ChallengeGrid({ challenges }: { challenges: ChallengeItem[] }) {
-  const router = useRouter();
+export function ChallengeGrid({ 
+  challenges,
+  onJoin,
+  onComplete
+}: { 
+  challenges: ChallengeItem[];
+  onJoin?: (id: string) => void;
+  onComplete?: (id: string) => void;
+}) {
   const shouldReduceMotion = useReducedMotion();
-  const [loadingId, setLoadingId] = useState<string | null>(null);
 
-  const handleJoin = useCallback(async (id: string) => {
-    setLoadingId(id);
-    try {
-      const response = await fetch("/api/challenges/join", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ challengeId: id }),
-      });
-      if (response.ok) router.refresh();
-    } catch { /* retry */ }
-    finally { setLoadingId(null); }
-  }, [router]);
+  const handleJoin = (id: string) => {
+    if (onJoin) onJoin(id);
+  };
 
-  const handleComplete = useCallback(async (id: string) => {
-    setLoadingId(id);
-    try {
-      const response = await fetch("/api/challenges/complete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ challengeId: id }),
-      });
-      if (response.ok) router.refresh();
-    } catch { /* retry */ }
-    finally { setLoadingId(null); }
-  }, [router]);
+  const handleComplete = (id: string) => {
+    if (onComplete) onComplete(id);
+  };
 
   if (challenges.length === 0) {
     return (
@@ -88,7 +76,6 @@ export function ChallengeGrid({ challenges }: { challenges: ChallengeItem[] }) {
               <button
                 className="btn btn--primary btn--sm"
                 onClick={() => handleJoin(challenge.id)}
-                disabled={loadingId === challenge.id}
               >
                 Join Challenge
               </button>
@@ -96,7 +83,6 @@ export function ChallengeGrid({ challenges }: { challenges: ChallengeItem[] }) {
               <button
                 className="btn btn--secondary btn--sm"
                 onClick={() => handleComplete(challenge.id)}
-                disabled={loadingId === challenge.id}
               >
                 Mark Complete
               </button>

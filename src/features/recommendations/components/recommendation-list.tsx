@@ -23,6 +23,7 @@ interface RecommendationItem {
 interface RecommendationListProps {
   recommendations: RecommendationItem[];
   compact?: boolean;
+  onToggle?: (dbId: string) => void;
 }
 
 const CATEGORY_ICONS: Record<string, string> = {
@@ -40,29 +41,15 @@ const CATEGORY_COLORS: Record<string, string> = {
 export function RecommendationList({
   recommendations,
   compact = false,
+  onToggle,
 }: RecommendationListProps) {
-  const router = useRouter();
   const shouldReduceMotion = useReducedMotion();
-  const [loadingId, setLoadingId] = useState<string | null>(null);
 
-  const handleToggleComplete = useCallback(async (dbId: string, currentState: boolean) => {
-    setLoadingId(dbId);
-    try {
-      const response = await fetch("/api/recommendations/toggle", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: dbId, isCompleted: !currentState }),
-      });
-
-      if (response.ok) {
-        router.refresh();
-      }
-    } catch {
-      // silently fail, user can retry
-    } finally {
-      setLoadingId(null);
+  const handleToggleComplete = (dbId: string, currentState: boolean) => {
+    if (onToggle) {
+      onToggle(dbId);
     }
-  }, [router]);
+  };
 
   const displayed = compact ? recommendations.slice(0, 5) : recommendations;
 
@@ -90,13 +77,10 @@ export function RecommendationList({
           <p className="recommendation-card__title">{rec.title}</p>
           <button
             className={`recommendation-card__action ${rec.isCompleted ? "recommendation-card__action--done" : ""}`}
-            onClick={() => handleToggleComplete(rec.dbId, rec.isCompleted)}
-            disabled={loadingId === rec.dbId}
+            onClick={() => handleToggleComplete(rec.id, rec.isCompleted)}
             aria-label={rec.isCompleted ? `Mark "${rec.title}" as incomplete` : `Mark "${rec.title}" as complete`}
           >
-            {loadingId === rec.dbId
-              ? "…"
-              : rec.isCompleted
+            {rec.isCompleted
               ? "✓ Completed"
               : "Mark Complete"}
           </button>
